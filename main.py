@@ -68,13 +68,18 @@ def menu(username):
                 r.set(command, channel_info)
                 print("members: ", members)
                 channel_view(sub, command, username)
+            elif subscription == "2":
+                menu(username)
+            else:
+                print("INVALID COMMAND")
+                menu(username)
     else:
         print("INVALID INPUT!")
         menu(username)
 
 
 def creating_channel(username):
-    channel_name = input("ENTER CHANNEL'S NAME: \n-1:back")
+    channel_name = input("ENTER CHANNEL'S NAME: \n-1:back\n")
     if channel_name == "-1":
         return
     if r.sismember("channels", channel_name):
@@ -111,20 +116,21 @@ def channel_view(sub, channel_name, username):
             channel_info = json.dumps(channel_info)
             r.set(channel_name, channel_info)
             menu(username)
-        elif message.__contains__('\\back') and sender.__eq__(username):
-            menu(username)
+        elif message.__contains__('\\back'):
+            if sender.__eq__(username):
+                menu(username)
         else:
             print(message)
 
 
 def publisher(channel_name, username):
     while True:
-        text = input("\\unsubscribe\n\\back\nEnter the message you want to send:")
+        text = input("\\unsubscribe\n\\back\nEnter the message you want to send: \n")
         message = f"[{datetime.now()}] {username} ({channel_name}) : {text}"
         r.publish(channel_name, message)
-        p.rpush(channel_name, message)
         if text.__contains__('\\back') or text.__contains__('\\unsubscribe'):
             return
+        p.rpush(channel_name, message)
 
 
 if __name__ == '__main__':
